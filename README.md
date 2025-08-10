@@ -17,6 +17,36 @@
 
 #### Решение 
 
+1.Создадим сервер
+
+Необходимо  создать свой secrets.yml в котором буду отписаны ваши авторизационные данные для подключения в виртуализацию, а так же для авторизации в Prometheus
+
+Ниже предоставлен список переменных для secrets.yml
+```bash
+proxmox_host: 
+proxmox_user: 
+proxmox_password: 
+proxmox_token: 
+proxmox_token_secret:
+grafana_user: 
+grafana_password: 
+```
+Не забываем зашифровать  данные с помощью ansible-vault
+
+```bash
+jecka@debian:~/git/Prometheus$ ansible-vault encrypt  secrets.yml 
+New Vault password: 
+Confirm New Vault password: 
+Encryption successful
+```
+
+Выполняем  разворачивание виртуальной машины из шаблона
+
+```bash
+ansible-playbook create_vm.yml --ask-vault-pass
+```
+
+<details><summary><code>Код выполнения</code></summary>
 
 ```bash
 
@@ -49,7 +79,23 @@ changed: [pve] => (item={'name_of_vm': 'my-vm1'})
 
 PLAY RECAP ************************************************************************************************************************************************************************************************************************************************************************************************************
 pve                        : ok=7    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```
 
+</ul></details>
+
+
+Далее выполним непосредственно установку Prometheus + Grafana
+Не забываем, что некоторые ресурсы недоступны с определенных ip  и  находим обходы которые не будут описаны тут.  
+
+Запускаем playbook 
+
+```bash
+jecka@debian:~/git/Prometheus$ ansible-playbook Install_prom_grafana.yml --ask-vault-pass
+```
+
+<details><summary><code>Установка на сервер prometheus+grafana</code></summary>
+
+```bash
 jecka@debian:~/git/Prometheus$ ansible-playbook Install_prom_grafana.yml --ask-vault-pass
 Vault password: 
 
@@ -92,6 +138,10 @@ my-vm1                     : ok=10   changed=4    unreachable=0    failed=0    s
 jecka@debian:~/git/Prometheus$ 
 ```
 
+</ul></details>
+
+<details><summary><code>Открытые порты на  сервере с prometheus+grafana</code></summary>
+<br>
 
 ```bash
 ansible@my-vm1:~$ ss -tulnp
@@ -109,3 +159,8 @@ tcp                             LISTEN                           0              
 ansible@my-vm1:~$ 
 
 ```
+</ul></details>
+
+![Страницы с запущенной Grafana](https://raw.githubusercontent.com/jecka2/Promethus/refs/head/main/Grafana.png)
+<br>
+![Добавленный источник данных  в Grafana при установке](https://raw.githubusercontent.com/jecka2/Promethus/refs/head/main/Database_grafana.png)
