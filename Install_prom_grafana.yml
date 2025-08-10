@@ -1,0 +1,63 @@
+---
+- name: install  & config prometheus
+  hosts: Prometheus
+  #vars:
+  vars_files: 
+   - secrets.yml
+  become: true
+  tasks: 
+
+    - name: Update apt package cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install prometheus
+      ansible.builtin.apt:
+       name: prometheus
+       state: present
+
+    - name: Add an Apt signing key to a specific keyring file
+      ansible.builtin.apt_key:
+       url: https://apt.grafana.com/gpg.key
+       keyring: /etc/apt/keyrings/grafana.gpg  
+
+
+    - name: add repo grafana | apt source
+      ansible.builtin.apt_repository:
+       repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
+       state: present
+       filename: grafana
+
+    - name: Update apt package cache
+      ansible.builtin.apt:
+       update_cache: true
+
+    - name: Install grafana
+      ansible.builtin.apt:
+       name: grafana
+       state: present
+
+
+    - name: "ensure grafana service started"
+      ansible.builtin.service:
+       name: grafana-server
+       state: started
+
+    - name: "add datasource"
+      community.grafana.grafana_datasource:
+       grafana_url: http://localhost:3000
+       grafana_user: "{{ grafana_user }}"
+       grafana_password: "{{ grafana_password }}"
+       name: prometheus
+       ds_type: prometheus
+       ds_url: http://localhost:9090
+       tls_skip_verify: true
+
+    - name: Import Grafana dashboard Zabbix
+      community.grafana.grafana_dashboard:
+       grafana_url: http://localhost:3000
+       grafana_user: "{{ grafana_user }}"
+       grafana_password: "{{ grafana_password }}"
+       dashboard_id: 1860
+       dashboard_revision: 41
+

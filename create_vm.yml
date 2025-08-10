@@ -8,23 +8,23 @@
       ansible.builtin.apt:
         name: python3-pip
         state: present
-        
+
     - name: INstall pip modules
       ansible.builtin.apt:
-        name:  python3-setuptools
-        state: present
-    
-    - name: Install pip modules 
-      ansible.builtin.apt:
-        name: python3-requests
-        state: present
+       name:  python3-setuptools
+       state: present
 
-    - name: Install pip modules 
+    - name: Install pip modules
+      ansible.builtin.apt:
+       name: python3-requests
+       state: present
+
+    - name: Install pip modules
       ansible.builtin.apt:
         name: python3-proxmoxer
         state: present
-        
-    - name: clone KVM VM 1 from template
+
+    - name: Clone KVM VM 1 from template
       community.general.proxmox_kvm:
         node: "pve"  # Узел кластера (можно указать all)
         api_host: "{{ proxmox_host }}"
@@ -33,22 +33,28 @@
         api_token_secret: "{{ proxmox_token_secret }}"
         validate_certs: false
         clone: "init"
-        name: "my-vm3"
+        name: "my-vm1"
+        nameservers:
+          - '192.168.1.148'
+          - '192.168.1.147'
+        net:
+          net0: 'virtio,bridge=vmbr1'
+        ipconfig:
+          ipconfig0: 'ip=192.168.1.60/24,gw=192.168.1.1'
         state: present
-        force: yes
+        force: true
         storage: "homelab"
         timeout: 300
 
     - name: Start VM
       community.general.proxmox_kvm:
-       api_host: "{{ proxmox_host }}"
-       api_user: "{{ proxmox_user }}"
-       api_token_id: "{{ proxmox_token }}"
-       api_token_secret: "{{ proxmox_token_secret }}"
-       name: "{{item.name_of_vm}}"
-       node: "proxmox"
-       state: started
+        api_host: "{{ proxmox_host }}"
+        api_user: "{{ proxmox_user }}"
+        api_token_id: "{{ proxmox_token }}"
+        api_token_secret: "{{ proxmox_token_secret }}"
+        name: "{{ item.name_of_vm }}"
+        node: "proxmox"
+        state: started
       loop:
-        - { name_of_vm: "my-vm3" }
-   
+         - { name_of_vm: "my-vm1" }
 ...
