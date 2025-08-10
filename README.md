@@ -161,6 +161,6 @@ ansible@my-vm1:~$
 ```
 </ul></details>
 
-![Страницы с запущенной Grafana](https://raw.githubusercontent.com/jecka2/Promethus/refs/head/main/Grafana.png)
+![Страницы с запущенной Grafana](https://raw.githubusercontent.com/jecka2/Prometheus/refs/head/main/Grafana.png)
 <br>
-![Добавленный источник данных  в Grafana при установке](https://raw.githubusercontent.com/jecka2/Promethus/refs/head/main/Database_grafana.png)
+![Добавленный источник данных  в Grafana при установке](https://raw.githubusercontent.com/jecka2/Prometheus/refs/head/main/Database_grafana.png)
